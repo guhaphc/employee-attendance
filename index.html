@@ -1105,75 +1105,247 @@ CHECK IN
 
 async function checkIn() {
 
-const today =
-new Date()
-.toISOString()
-.split("T")[0];
+  if (!navigator.geolocation) {
+    alert("❌ या फोनमध्ये GPS उपलब्ध नाही.");
+    return;
+  }
 
+  alert("📍 GPS स्थान तपासत आहे. कृपया थोडा वेळ थांबा.");
 
-const { data: existing } =
-await supabaseClient
-.from("attendance")
-.select("id")
-.eq(
-"employee_id",
-currentEmployee.id
-)
-.eq(
-"attendance_date",
-today
-)
-.maybeSingle();
+  navigator.geolocation.getCurrentPosition(
 
+    async function(position) {
 
-if (existing) {
+      const userLat = position.coords.latitude;
+      const userLng = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
 
-alert(
-"आजची उपस्थिती आधीच नोंदवली आहे."
-);
+      try {
 
-return;
+        // कार्यस्थळाचे GPS स्थान
+        const { data: location, error: locationError } =
+          await supabaseClient
+            .from("attendance_location")
+            .select(
+              "latitude,longitude,allowed_radius_meters,location_name"
+            )
+            .eq("location_key", "main")
+            .single();
 
-}
+        if (locationError) {
+          throw locationError;
+        }
 
+        // GPS मधील अंतर मोजणे
+        function distanceInMeters(lat1, lon1, lat2, lon2) {
 
-const { error } =
-await supabaseClient
-.from("attendance")
-.insert({
+          const R = 6371000;
 
-employee_id:
-currentEmployee.id,
+          const dLat =
+            (lat2 - lat1) * Math.PI / 180;
 
-attendance_date:
-today,
+          const dLon =
+            (lon2 - lon1) * Math.PI / 180;
 
-check_in:
-new Date().toISOString()
+          const a =
+            Math.sin(dLat / 2) *
+            Math.sin(dLat / 2) +
 
-});
+            Math.cos(lat1 * Math.PI / 180) *
+            Math.cos(lat2 * Math.PI / 180) *
 
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
 
-if (error) {
+          const c =
+            2 *
+            Math.atan2(
+              Math.sqrt(a),
+              Math.sqrt(1 - a)
+            );
 
-alert(
-"Check-In अयशस्वी: " +
-error.message
-);
+          return R * c;
+        }
 
-return;
+        const distance =
+          distanceInMeters(
+            userLat,
+            userLng,
+            Number(location.latitude),
+            Number(location.longitude)
+          );
 
-}
+        // GPS accuracy तपासा
+        if (accuracy > 100) {
 
+          alert(
+            "❌ GPS Accuracy कमी आहे.\n\n" +
+            "सध्याची Accuracy: " +
+            Math.round(accuracy) +
+            " मीटर\n\n" +
+            "कृपया मोकळ्या जागेत जाऊन पुन्हा प्रयत्न करा."
+          );
 
-alert(
-"✅ Check-In यशस्वी!"
-);
+          return;
+        }
 
+        // कार्यस्थळापासून अंतर तपासा
+        if (
+          distance >
+          Number(location.allowed_radius_meters)
+        ) {
 
-await loadTodayAttendance();
+          alert(
+            "❌ Check-In नाकारला.\n\n" +
+            "कार्यस्थळ: " +
+            location.location_name +
+            "\n\n" +
+            "तुमचे अंतर: " +
+            Math.round(distance) +
+            " मीटर\n" +
+            "परवानगीचे अंतर: " +
+            location.allowed_radius_meters +
+            " मीटर"
+          );
 
-await loadAttendanceHistory();
+          return;
+        }
+
+        // आजची तारीख
+        const today =
+          new Date()
+            .toISOString()
+            .split("T")[0];
+
+        // आधीची Attendance तपासा
+        const { data: existing, error: existingError } =
+          await supabaseClient
+            .from("attendance")
+            .select("id")
+            .eq(
+              "employee_id",
+              currentEmployee.id
+            )
+            .eq(
+              "attendance_date",
+              today
+            )
+            .maybeSingle();
+
+        if (existingError) {
+          throw existingError;
+        }
+
+        if (existing) {
+
+          alert(
+            "आजची उपस्थिती आधीच नोंदवली आहे."
+          );
+
+          return;
+        }
+
+        // Attendance नोंदवा
+        const { error } =
+          await supabaseClient
+            .from("attendance")
+            .insert({
+
+              employee_id:
+                currentEmployee.id,
+
+              attendance_date:
+                today,
+
+              check_in:
+                new Date().toISOString(),
+
+              check_in_latitude:
+                userLat,
+
+              check_in_longitude:
+                userLng,
+
+              check_in_accuracy:
+                accuracy
+
+            });
+
+        if (error) {
+          throw error;
+        }
+
+        alert(
+          "✅ GPS तपासणी यशस्वी!\n\n" +
+          "कार्यस्थळापासून अंतर: " +
+          Math.round(distance) +
+          " मीटर\n\n" +
+          "Check-In यशस्वी झाला."
+        );
+
+        await loadTodayAttendance();
+
+        await loadAttendanceHistory();
+
+      }
+
+      catch(error) {
+
+        alert(
+          "❌ Check-In अयशस्वी:\n" +
+          error.message
+        );
+
+      }
+
+    },
+
+    function(error) {
+
+      if (error.code === 1) {
+
+        alert(
+          "❌ Location Permission नाकारली आहे.\n\n" +
+          "Chrome मध्ये Location → Allow करा."
+        );
+
+      }
+
+      else if (error.code === 2) {
+
+        alert(
+          "❌ GPS location मिळू शकले नाही."
+        );
+
+      }
+
+      else if (error.code === 3) {
+
+        alert(
+          "❌ GPS मिळवण्यासाठी वेळ संपला.\n\n" +
+          "पुन्हा प्रयत्न करा."
+        );
+
+      }
+
+      else {
+
+        alert(
+          "❌ GPS Error: " +
+          error.message
+        );
+
+      }
+
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 0
+    }
+
+  );
 
 }
 
