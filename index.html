@@ -573,7 +573,47 @@ Loading...
 </div>
 
 </div>
+<div class="card">
 
+  <h2>📍 कार्यस्थळ GPS</h2>
+
+  <p>
+    Admin च्या सध्याच्या GPS स्थानाची नोंद करा.
+    कर्मचारी याच ठिकाणाच्या ठरावीक अंतरात असल्यास
+    Check-In करू शकेल.
+  </p>
+
+  <input
+    id="locationName"
+    type="text"
+    value="प्राथमिक आरोग्य केंद्र गुहा"
+    placeholder="कार्यस्थळाचे नाव">
+
+  <input
+    id="allowedRadius"
+    type="number"
+    value="100"
+    min="10"
+    max="1000"
+    placeholder="Radius मीटरमध्ये">
+
+  <button
+    class="purple"
+    onclick="saveWorkplaceLocation()">
+
+    📍 माझे सध्याचे स्थान नोंदवा
+
+  </button>
+
+  <div
+    id="locationMessage"
+    class="message">
+
+    GPS स्थान अद्याप नोंदवलेले नाही.
+
+  </div>
+
+</div>
   <div class="card">
 
 <h2>👥 सर्व कर्मचारी</h2>
@@ -2194,7 +2234,176 @@ function filterEmployees() {
   displayEmployees(filtered);
 
 }
-  
+  async function saveWorkplaceLocation() {
+
+  const message =
+    document.getElementById("locationMessage");
+
+  const locationName =
+    document.getElementById("locationName")
+      .value.trim();
+
+  const radius =
+    parseInt(
+      document.getElementById("allowedRadius")
+        .value
+    );
+
+
+  if (!locationName) {
+
+    message.innerText =
+      "कृपया कार्यस्थळाचे नाव भरा.";
+
+    return;
+  }
+
+
+  if (!radius || radius < 10) {
+
+    message.innerText =
+      "Radius किमान 10 मीटर असावा.";
+
+    return;
+  }
+
+
+  if (!navigator.geolocation) {
+
+    message.innerText =
+      "या फोनमध्ये GPS सुविधा उपलब्ध नाही.";
+
+    return;
+  }
+
+
+  message.innerText =
+    "📍 GPS स्थान मिळवत आहे...";
+
+
+  navigator.geolocation.getCurrentPosition(
+
+    async function(position) {
+
+      const latitude =
+        position.coords.latitude;
+
+      const longitude =
+        position.coords.longitude;
+
+      const accuracy =
+        position.coords.accuracy;
+
+
+      try {
+
+        const { error } =
+          await supabaseClient
+            .from("attendance_location")
+            .upsert({
+
+              location_key: "main",
+
+              location_name:
+                locationName,
+
+              latitude:
+                latitude,
+
+              longitude:
+                longitude,
+
+              allowed_radius_meters:
+                radius,
+
+              updated_at:
+                new Date().toISOString()
+
+            }, {
+
+              onConflict:
+                "location_key"
+
+            });
+
+
+        if (error) {
+          throw error;
+        }
+
+
+        message.innerText =
+          "✅ कार्यस्थळाचे GPS स्थान यशस्वीरीत्या नोंदवले." +
+          "\n\nLatitude: " +
+          latitude.toFixed(6) +
+          "\nLongitude: " +
+          longitude.toFixed(6) +
+          "\nAccuracy: " +
+          Math.round(accuracy) +
+          " मीटर" +
+          "\nAllowed Radius: " +
+          radius +
+          " मीटर";
+
+      }
+
+      catch(error) {
+
+        message.innerText =
+          "❌ GPS स्थान save झाले नाही: " +
+          error.message;
+
+      }
+
+    },
+
+    function(error) {
+
+      if (error.code === 1) {
+
+        message.innerText =
+          "❌ GPS permission नाकारली आहे. " +
+          "Browser मध्ये Location permission Allow करा.";
+
+      }
+
+      else if (error.code === 2) {
+
+        message.innerText =
+          "❌ GPS location मिळू शकले नाही.";
+
+      }
+
+      else if (error.code === 3) {
+
+        message.innerText =
+          "❌ GPS location मिळण्यासाठी वेळ लागला.";
+
+      }
+
+      else {
+
+        message.innerText =
+          "❌ GPS error: " +
+          error.message;
+
+      }
+
+    },
+
+    {
+
+      enableHighAccuracy: true,
+
+      timeout: 15000,
+
+      maximumAge: 0
+
+    }
+
+  );
+
+  }
   function escapeHtml(value) {
 
 return String(value)
