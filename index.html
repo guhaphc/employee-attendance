@@ -1,929 +1,1741 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>कर्मचारी उपस्थिती प्रणाली</title>
+<meta charset="UTF-8">
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+<title>कर्मचारी उपस्थिती प्रणाली</title>
 
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f7fb;
-      color: #222;
-    }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    .header {
-      background: #1769aa;
-      color: white;
-      text-align: center;
-      padding: 25px 15px;
-      border-radius: 0 0 25px 25px;
-    }
+<style>
 
-    .header h1 {
-      font-size: 23px;
-      margin-bottom: 7px;
-    }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    .header p {
-      color: white;
-    }
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f7fb;
+  color: #222;
+}
 
-    .container {
-      max-width: 520px;
-      margin: auto;
-      padding: 20px 16px;
-    }
+.header {
+  background: #1769aa;
+  color: white;
+  text-align: center;
+  padding: 25px 15px;
+  border-radius: 0 0 25px 25px;
+}
 
-    .card {
-      background: white;
-      padding: 22px;
-      margin-bottom: 16px;
-      border-radius: 18px;
-      box-shadow: 0 4px 15px rgba(0,0,0,.08);
-    }
+.header h1 {
+  font-size: 23px;
+  margin-bottom: 7px;
+}
 
-    h2 {
-      margin-bottom: 15px;
-    }
+.header p {
+  color: white;
+}
 
-    p {
-      color: #666;
-      margin-bottom: 15px;
-      line-height: 1.5;
-    }
+.container {
+  max-width: 520px;
+  margin: auto;
+  padding: 20px 16px;
+}
 
-    input {
-      width: 100%;
-      padding: 14px;
-      margin-bottom: 12px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      font-size: 16px;
-    }
+.card {
+  background: white;
+  padding: 22px;
+  margin-bottom: 16px;
+  border-radius: 18px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.08);
+}
 
-    button {
-      width: 100%;
-      padding: 14px;
-      border: 0;
-      border-radius: 11px;
-      background: #1769aa;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      margin-top: 7px;
-      cursor: pointer;
-    }
+h2 {
+  margin-bottom: 15px;
+}
 
-    .green {
-      background: #198754;
-    }
+h3 {
+  margin-bottom: 10px;
+}
 
-    .red {
-      background: #dc3545;
-    }
+p {
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
 
-    .purple {
-      background: #6f42c1;
-    }
+input,
+textarea {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 16px;
+}
 
-    .gray {
-      background: #777;
-    }
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
 
-    .hidden {
-      display: none;
-    }
+button {
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  border-radius: 11px;
+  background: #1769aa;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 7px;
+  cursor: pointer;
+}
 
-    .message {
-      margin-top: 15px;
-      padding: 12px;
-      border-radius: 10px;
-      background: #eef3f8;
-      font-size: 14px;
-      line-height: 1.5;
-    }
+.green {
+  background: #198754;
+}
 
-    .employee {
-      border: 1px solid #ddd;
-      border-radius: 14px;
-      padding: 16px;
-      margin-bottom: 12px;
-    }
+.red {
+  background: #dc3545;
+}
 
-    .employee h3 {
-      margin-bottom: 8px;
-    }
+.purple {
+  background: #6f42c1;
+}
 
-    .employee p {
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
+.orange {
+  background: #fd7e14;
+}
 
-    .employee button {
-      margin-top: 10px;
-    }
+.gray {
+  background: #777;
+}
 
-    .footer {
-      text-align: center;
-      color: #777;
-      padding: 20px;
-      font-size: 13px;
-    }
-  </style>
+.hidden {
+  display: none;
+}
+
+.message {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #eef3f8;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.status-box {
+  padding: 18px;
+  border-radius: 14px;
+  background: #eef3f8;
+  margin-bottom: 15px;
+}
+
+.history-item {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.history-item p {
+  margin-bottom: 5px;
+}
+
+.employee {
+  border: 1px solid #ddd;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.employee p {
+  margin-bottom: 5px;
+}
+
+.footer {
+  text-align: center;
+  color: #777;
+  padding: 20px;
+  font-size: 13px;
+}
+
+</style>
+
 </head>
 
 <body>
 
+
 <div class="header">
-  <h1>कर्मचारी उपस्थिती प्रणाली</h1>
-  <p>Employee Attendance System</p>
+
+<h1>कर्मचारी उपस्थिती प्रणाली</h1>
+
+<p>Employee Attendance System</p>
+
 </div>
 
 
 <div class="container">
 
-  <!-- HOME -->
-  <div id="home">
 
-    <div class="card">
-      <h2>नवीन कर्मचारी</h2>
-      <p>नवीन कर्मचारी म्हणून नोंदणी करा.</p>
+<!-- HOME -->
 
-      <button class="green" onclick="showPage('register')">
-        नवीन नोंदणी
-      </button>
-    </div>
+<div id="home">
 
+<div class="card">
 
-    <div class="card">
-      <h2>कर्मचारी Login</h2>
-      <p>कर्मचारी आपल्या खात्यात Login करू शकतो.</p>
+<h2>नवीन कर्मचारी</h2>
 
-      <button onclick="showPage('employeeLogin')">
-        कर्मचारी Login
-      </button>
-    </div>
+<p>
+नवीन कर्मचारी म्हणून नोंदणी करा.
+</p>
 
+<button
+class="green"
+onclick="showPage('register')">
 
-    <div class="card">
-      <h2>Admin</h2>
-      <p>कर्मचारी मंजुरी आणि व्यवस्थापन.</p>
+नवीन नोंदणी
 
-      <button class="purple" onclick="showPage('adminLogin')">
-        Admin Login
-      </button>
-    </div>
+</button>
 
-  </div>
+</div>
 
 
-  <!-- REGISTER -->
-  <div id="register" class="card hidden">
+<div class="card">
 
-    <h2>नवीन कर्मचारी नोंदणी</h2>
+<h2>कर्मचारी Login</h2>
 
-    <input id="regName"
-      type="text"
-      placeholder="पूर्ण नाव">
+<p>
+उपस्थिती आणि दैनंदिन कामाची नोंद करण्यासाठी Login करा.
+</p>
 
-    <input id="regMobile"
-      type="tel"
-      placeholder="मोबाईल नंबर">
+<button
+onclick="showPage('employeeLogin')">
 
-    <input id="regEmail"
-      type="email"
-      placeholder="Email">
+कर्मचारी Login
 
-    <input id="regDesignation"
-      type="text"
-      placeholder="पद / Designation">
+</button>
 
-    <input id="regPassword"
-      type="password"
-      placeholder="Password">
-
-    <input id="regConfirm"
-      type="password"
-      placeholder="Password पुन्हा टाका">
-
-    <button class="green" onclick="registerEmployee()">
-      नोंदणी करा
-    </button>
-
-    <button class="gray" onclick="showPage('home')">
-      मागे जा
-    </button>
-
-    <div id="registerMessage"
-      class="message hidden"></div>
-
-  </div>
+</div>
 
 
-  <!-- EMPLOYEE LOGIN -->
-  <div id="employeeLogin" class="card hidden">
+<div class="card">
 
-    <h2>कर्मचारी Login</h2>
+<h2>Admin</h2>
 
-    <input id="loginEmail"
-      type="email"
-      placeholder="Email">
+<p>
+कर्मचारी व्यवस्थापन आणि मंजुरी.
+</p>
 
-    <input id="loginPassword"
-      type="password"
-      placeholder="Password">
+<button
+class="purple"
+onclick="showPage('adminLogin')">
 
-    <button onclick="employeeLogin()">
-      Login
-    </button>
+Admin Login
 
-    <button class="gray" onclick="showPage('home')">
-      मागे जा
-    </button>
+</button>
 
-    <div id="loginMessage"
-      class="message hidden"></div>
+</div>
 
-  </div>
+</div>
 
 
-  <!-- ADMIN LOGIN -->
-  <div id="adminLogin" class="card hidden">
+<!-- REGISTER -->
 
-    <h2>Admin Login</h2>
+<div id="register"
+class="card hidden">
 
-    <input id="adminEmail"
-      type="email"
-      placeholder="Admin Email">
+<h2>नवीन कर्मचारी नोंदणी</h2>
 
-    <input id="adminPassword"
-      type="password"
-      placeholder="Password">
+<input
+id="regName"
+type="text"
+placeholder="पूर्ण नाव">
 
-    <button class="purple" onclick="adminLogin()">
-      Admin Login
-    </button>
+<input
+id="regMobile"
+type="tel"
+placeholder="मोबाईल नंबर">
 
-    <button class="gray" onclick="showPage('home')">
-      मागे जा
-    </button>
+<input
+id="regEmail"
+type="email"
+placeholder="Email">
 
-    <div id="adminMessage"
-      class="message hidden"></div>
+<input
+id="regDesignation"
+type="text"
+placeholder="पद / Designation">
 
-  </div>
+<input
+id="regPassword"
+type="password"
+placeholder="Password">
+
+<input
+id="regConfirm"
+type="password"
+placeholder="Password पुन्हा टाका">
+
+<button
+class="green"
+onclick="registerEmployee()">
+
+नोंदणी करा
+
+</button>
+
+<button
+class="gray"
+onclick="showPage('home')">
+
+मागे जा
+
+</button>
+
+<div
+id="registerMessage"
+class="message hidden">
+</div>
+
+</div>
 
 
-  <!-- ADMIN DASHBOARD -->
-  <div id="adminDashboard" class="hidden">
+<!-- EMPLOYEE LOGIN -->
 
-    <div class="card">
+<div id="employeeLogin"
+class="card hidden">
 
-      <h2>Admin Dashboard</h2>
+<h2>कर्मचारी Login</h2>
 
-      <p id="adminWelcome">
-        कर्मचारी व्यवस्थापन
-      </p>
+<input
+id="loginEmail"
+type="email"
+placeholder="Email">
 
-      <button
-        class="purple"
-        onclick="loadPendingEmployees()">
-        Pending Employees Refresh करा
-      </button>
+<input
+id="loginPassword"
+type="password"
+placeholder="Password">
 
-      <button
-        class="gray"
-        onclick="adminLogout()">
-        Logout
-      </button>
+<button
+onclick="employeeLogin()">
 
-    </div>
+Login
+
+</button>
+
+<button
+class="gray"
+onclick="showPage('home')">
+
+मागे जा
+
+</button>
+
+<div
+id="loginMessage"
+class="message hidden">
+</div>
+
+</div>
 
 
-    <div class="card">
+<!-- EMPLOYEE DASHBOARD -->
 
-      <h2>Pending Employees</h2>
+<div
+id="employeeDashboard"
+class="hidden">
 
-      <div id="pendingEmployees">
-        Loading...
-      </div>
 
-    </div>
+<div class="card">
 
-  </div>
+<h2 id="employeeName">
+कर्मचारी Dashboard
+</h2>
+
+<p id="employeeDesignation">
+</p>
+
+<button
+class="red"
+onclick="employeeLogout()">
+
+Logout
+
+</button>
+
+</div>
+
+
+<!-- TODAY ATTENDANCE -->
+
+<div class="card">
+
+<h2>आजची उपस्थिती</h2>
+
+<div
+id="attendanceStatus"
+class="status-box">
+
+उपस्थिती माहिती Loading...
+
+</div>
+
+<button
+class="green"
+id="checkInButton"
+onclick="checkIn()">
+
+🟢 Check-In
+
+</button>
+
+<button
+class="orange"
+id="checkOutButton"
+onclick="checkOut()">
+
+🔴 Check-Out
+
+</button>
+
+</div>
+
+
+<!-- DAILY WORK -->
+
+<div class="card">
+
+<h2>आजचे काम</h2>
+
+<textarea
+id="workDescription"
+placeholder="आज केलेल्या कामाची माहिती लिहा...">
+</textarea>
+
+<button
+onclick="submitWork()">
+
+📝 कामाची नोंद करा
+
+</button>
+
+<div
+id="workMessage"
+class="message hidden">
+</div>
+
+</div>
+
+
+<!-- ATTENDANCE HISTORY -->
+
+<div class="card">
+
+<h2>उपस्थिती इतिहास</h2>
+
+<button
+onclick="loadAttendanceHistory()">
+
+Refresh
+
+</button>
+
+<div
+id="attendanceHistory">
+
+Loading...
+
+</div>
+
+</div>
+
+
+<!-- WORK HISTORY -->
+
+<div class="card">
+
+<h2>कामाचा इतिहास</h2>
+
+<button
+onclick="loadWorkHistory()">
+
+Refresh
+
+</button>
+
+<div
+id="workHistory">
+
+Loading...
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<!-- ADMIN LOGIN -->
+
+<div id="adminLogin"
+class="card hidden">
+
+<h2>Admin Login</h2>
+
+<input
+id="adminEmail"
+type="email"
+placeholder="Admin Email">
+
+<input
+id="adminPassword"
+type="password"
+placeholder="Password">
+
+<button
+class="purple"
+onclick="adminLoginUser()">
+
+Admin Login
+
+</button>
+
+<button
+class="gray"
+onclick="showPage('home')">
+
+मागे जा
+
+</button>
+
+<div
+id="adminMessage"
+class="message hidden">
+</div>
+
+</div>
+
+
+<!-- ADMIN DASHBOARD -->
+
+<div
+id="adminDashboard"
+class="hidden">
+
+
+<div class="card">
+
+<h2>Admin Dashboard</h2>
+
+<p>
+कर्मचारी व्यवस्थापन
+</p>
+
+<button
+class="purple"
+onclick="loadPendingEmployees()">
+
+Pending Employees Refresh करा
+
+</button>
+
+<button
+class="gray"
+onclick="adminLogout()">
+
+Logout
+
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>Pending Employees</h2>
+
+<div
+id="pendingEmployees">
+
+Loading...
+
+</div>
+
+</div>
+
+</div>
+
 
 </div>
 
 
 <div class="footer">
-  © 2026 Employee Attendance System
+
+© 2026 Employee Attendance System
+
 </div>
 
 
 <script>
 
-/* ==========================================
-   SUPABASE CONNECTION
-   ========================================== */
+
+/* =====================================
+SUPABASE
+===================================== */
 
 const SUPABASE_URL =
-  "https://ndlnpxedaqbdjrtlrkpz.supabase.co";
+"https://ndlnpxedaqbdjrtlrkpz.supabase.co";
 
 const SUPABASE_KEY =
-  "sb_publishable_A-ME8uqfZdnZ51zf6S77Fg_8hQrZEG4";
+"sb_publishable_A-ME8uqfZdnZ51zf6S77Fg_8hQrZEG4";
 
 
 const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
 
 
-/* ==========================================
-   PAGE NAVIGATION
-   ========================================== */
+/* =====================================
+CURRENT EMPLOYEE
+===================================== */
+
+let currentEmployee = null;
+
+
+/* =====================================
+PAGE NAVIGATION
+===================================== */
 
 function showPage(page) {
 
-  const pages = [
-    "home",
-    "register",
-    "employeeLogin",
-    "adminLogin",
-    "adminDashboard"
-  ];
+const pages = [
 
-  pages.forEach(function(id) {
+"home",
+"register",
+"employeeLogin",
+"employeeDashboard",
+"adminLogin",
+"adminDashboard"
 
-    document.getElementById(id)
-      .classList.add("hidden");
+];
 
-  });
+pages.forEach(function(id) {
 
-  document.getElementById(page)
-    .classList.remove("hidden");
+document.getElementById(id)
+.classList.add("hidden");
+
+});
+
+document.getElementById(page)
+.classList.remove("hidden");
+
 }
 
 
-/* ==========================================
-   EMPLOYEE REGISTRATION
-   ========================================== */
+/* =====================================
+EMPLOYEE REGISTRATION
+===================================== */
 
 async function registerEmployee() {
 
-  const name =
-    document.getElementById("regName")
-      .value.trim();
+const name =
+document.getElementById("regName")
+.value.trim();
 
-  const mobile =
-    document.getElementById("regMobile")
-      .value.trim();
+const mobile =
+document.getElementById("regMobile")
+.value.trim();
 
-  const email =
-    document.getElementById("regEmail")
-      .value.trim();
+const email =
+document.getElementById("regEmail")
+.value.trim();
 
-  const designation =
-    document.getElementById("regDesignation")
-      .value.trim();
+const designation =
+document.getElementById("regDesignation")
+.value.trim();
 
-  const password =
-    document.getElementById("regPassword")
-      .value;
+const password =
+document.getElementById("regPassword")
+.value;
 
-  const confirm =
-    document.getElementById("regConfirm")
-      .value;
+const confirm =
+document.getElementById("regConfirm")
+.value;
 
-  const message =
-    document.getElementById("registerMessage");
+const message =
+document.getElementById("registerMessage");
 
-
-  message.classList.remove("hidden");
-
-
-  if (
-    !name ||
-    !mobile ||
-    !email ||
-    !designation ||
-    !password
-  ) {
-
-    message.innerText =
-      "कृपया सर्व माहिती भरा.";
-
-    return;
-  }
+message.classList.remove("hidden");
 
 
-  if (password !== confirm) {
+if (
+!name ||
+!mobile ||
+!email ||
+!designation ||
+!password
+) {
 
-    message.innerText =
-      "दोन्ही Password समान नाहीत.";
+message.innerText =
+"कृपया सर्व माहिती भरा.";
 
-    return;
-  }
-
-
-  if (password.length < 6) {
-
-    message.innerText =
-      "Password किमान 6 अक्षरांचा असावा.";
-
-    return;
-  }
-
-
-  message.innerText =
-    "नोंदणी सुरू आहे...";
-
-
-  try {
-
-    const { data, error } =
-      await supabaseClient.auth.signUp({
-
-        email: email,
-
-        password: password
-
-      });
-
-
-    if (error) {
-      throw error;
-    }
-
-
-    if (!data.user) {
-      throw new Error(
-        "User तयार झाला नाही."
-      );
-    }
-
-
-    const { error: profileError } =
-      await supabaseClient
-        .from("employees")
-        .insert({
-
-          user_id: data.user.id,
-
-          full_name: name,
-
-          mobile: mobile,
-
-          email: email,
-
-          designation: designation,
-
-          status: "pending"
-
-        });
-
-
-    if (profileError) {
-      throw profileError;
-    }
-
-
-    message.innerText =
-      "✅ नोंदणी यशस्वी झाली! " +
-      "Admin approval नंतर Login करा.";
-
-  }
-
-  catch (error) {
-
-    message.innerText =
-      "❌ नोंदणी अयशस्वी: " +
-      error.message;
-
-  }
+return;
 
 }
 
 
-/* ==========================================
-   EMPLOYEE LOGIN
-   ========================================== */
+if (password !== confirm) {
+
+message.innerText =
+"दोन्ही Password समान नाहीत.";
+
+return;
+
+}
+
+
+if (password.length < 6) {
+
+message.innerText =
+"Password किमान 6 अक्षरांचा असावा.";
+
+return;
+
+}
+
+
+try {
+
+const { data, error } =
+await supabaseClient.auth.signUp({
+
+email: email,
+
+password: password
+
+});
+
+
+if (error) {
+
+throw error;
+
+}
+
+
+if (!data.user) {
+
+throw new Error(
+"User तयार झाला नाही."
+);
+
+}
+
+
+const { error: profileError } =
+await supabaseClient
+.from("employees")
+.insert({
+
+user_id: data.user.id,
+
+full_name: name,
+
+mobile: mobile,
+
+email: email,
+
+designation: designation,
+
+status: "pending"
+
+});
+
+
+if (profileError) {
+
+throw profileError;
+
+}
+
+
+message.innerText =
+"✅ नोंदणी यशस्वी झाली! Admin approval नंतर Login करा.";
+
+}
+
+catch(error) {
+
+message.innerText =
+"❌ नोंदणी अयशस्वी: " +
+error.message;
+
+}
+
+}
+
+
+/* =====================================
+EMPLOYEE LOGIN
+===================================== */
 
 async function employeeLogin() {
 
-  const email =
-    document.getElementById("loginEmail")
-      .value.trim();
+const email =
+document.getElementById("loginEmail")
+.value.trim();
 
-  const password =
-    document.getElementById("loginPassword")
-      .value;
+const password =
+document.getElementById("loginPassword")
+.value;
 
-  const message =
-    document.getElementById("loginMessage");
+const message =
+document.getElementById("loginMessage");
 
-
-  message.classList.remove("hidden");
-
-
-  if (!email || !password) {
-
-    message.innerText =
-      "Email आणि Password भरा.";
-
-    return;
-  }
+message.classList.remove("hidden");
 
 
-  try {
+try {
 
-    const { data, error } =
-      await supabaseClient.auth
-        .signInWithPassword({
+const { data, error } =
+await supabaseClient.auth
+.signInWithPassword({
 
-          email: email,
+email: email,
 
-          password: password
+password: password
 
-        });
-
-
-    if (error) {
-      throw error;
-    }
+});
 
 
-    const { data: employee, error: employeeError } =
-      await supabaseClient
-        .from("employees")
-        .select(
-          "full_name,status,designation"
-        )
-        .eq("user_id", data.user.id)
-        .single();
+if (error) {
 
-
-    if (employeeError) {
-      throw employeeError;
-    }
-
-
-    if (employee.status !== "approved") {
-
-      await supabaseClient.auth.signOut();
-
-      message.innerText =
-        "⏳ तुमचे खाते Admin ने अजून मंजूर केलेले नाही.";
-
-      return;
-    }
-
-
-    message.innerText =
-      "✅ Login यशस्वी! स्वागत आहे " +
-      employee.full_name;
-
-  }
-
-  catch (error) {
-
-    message.innerText =
-      "❌ Login अयशस्वी: " +
-      error.message;
-
-  }
+throw error;
 
 }
 
 
-/* ==========================================
-   ADMIN LOGIN
-   ========================================== */
-
-async function adminLogin() {
-
-  const email =
-    document.getElementById("adminEmail")
-      .value.trim();
-
-  const password =
-    document.getElementById("adminPassword")
-      .value;
-
-  const message =
-    document.getElementById("adminMessage");
+const { data: employee, error: employeeError } =
+await supabaseClient
+.from("employees")
+.select(
+"id,full_name,status,designation,email,mobile"
+)
+.eq("user_id", data.user.id)
+.single();
 
 
-  message.classList.remove("hidden");
+if (employeeError) {
 
-
-  if (!email || !password) {
-
-    message.innerText =
-      "Admin Email आणि Password भरा.";
-
-    return;
-  }
-
-
-  message.innerText =
-    "Admin Login तपासले जात आहे...";
-
-
-  try {
-
-    const { data, error } =
-      await supabaseClient.auth
-        .signInWithPassword({
-
-          email: email,
-
-          password: password
-
-        });
-
-
-    if (error) {
-      throw error;
-    }
-
-
-    /* Check whether logged-in user is admin */
-
-    const { data: admin, error: adminError } =
-      await supabaseClient
-        .from("admins")
-        .select("id")
-        .eq("user_id", data.user.id)
-        .maybeSingle();
-
-
-    if (adminError) {
-      throw adminError;
-    }
-
-
-    if (!admin) {
-
-      await supabaseClient.auth.signOut();
-
-      message.innerText =
-        "❌ तुम्हाला Admin access नाही.";
-
-      return;
-    }
-
-
-    message.innerText =
-      "✅ Admin Login successful.";
-
-    showPage("adminDashboard");
-
-    document.getElementById("adminWelcome")
-      .innerText =
-      "Admin Dashboard — कर्मचारी मंजुरी";
-
-    loadPendingEmployees();
-
-  }
-
-  catch (error) {
-
-    message.innerText =
-      "❌ Admin Login अयशस्वी: " +
-      error.message;
-
-  }
+throw employeeError;
 
 }
 
 
-/* ==========================================
-   LOAD PENDING EMPLOYEES
-   ========================================== */
+if (employee.status !== "approved") {
+
+await supabaseClient.auth.signOut();
+
+message.innerText =
+"⏳ तुमचे खाते अजून Admin ने मंजूर केलेले नाही.";
+
+return;
+
+}
+
+
+currentEmployee = employee;
+
+openEmployeeDashboard();
+
+}
+
+catch(error) {
+
+message.innerText =
+"❌ Login अयशस्वी: " +
+error.message;
+
+}
+
+}
+
+
+/* =====================================
+EMPLOYEE DASHBOARD
+===================================== */
+
+async function openEmployeeDashboard() {
+
+showPage("employeeDashboard");
+
+
+document.getElementById(
+"employeeName"
+).innerText =
+"नमस्कार, " +
+currentEmployee.full_name;
+
+
+document.getElementById(
+"employeeDesignation"
+).innerText =
+"पद: " +
+currentEmployee.designation;
+
+
+await loadTodayAttendance();
+
+await loadAttendanceHistory();
+
+await loadWorkHistory();
+
+}
+
+
+/* =====================================
+TODAY ATTENDANCE
+===================================== */
+
+async function loadTodayAttendance() {
+
+const today =
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+const { data, error } =
+await supabaseClient
+.from("attendance")
+.select("*")
+.eq(
+"employee_id",
+currentEmployee.id
+)
+.eq(
+"attendance_date",
+today
+)
+.maybeSingle();
+
+
+const status =
+document.getElementById(
+"attendanceStatus"
+);
+
+
+const checkInButton =
+document.getElementById(
+"checkInButton"
+);
+
+
+const checkOutButton =
+document.getElementById(
+"checkOutButton"
+);
+
+
+if (error) {
+
+status.innerText =
+"❌ माहिती मिळाली नाही.";
+
+return;
+
+}
+
+
+if (!data) {
+
+status.innerText =
+"आजची उपस्थिती नोंदवलेली नाही.";
+
+checkInButton.disabled = false;
+
+checkOutButton.disabled = true;
+
+return;
+
+}
+
+
+let text =
+"Check-In: " +
+new Date(data.check_in)
+.toLocaleTimeString();
+
+
+if (data.check_out) {
+
+text +=
+"\nCheck-Out: " +
+new Date(data.check_out)
+.toLocaleTimeString();
+
+checkInButton.disabled = true;
+
+checkOutButton.disabled = true;
+
+}
+
+else {
+
+checkInButton.disabled = true;
+
+checkOutButton.disabled = false;
+
+}
+
+
+status.innerText = text;
+
+}
+
+
+/* =====================================
+CHECK IN
+===================================== */
+
+async function checkIn() {
+
+const today =
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+const { data: existing } =
+await supabaseClient
+.from("attendance")
+.select("id")
+.eq(
+"employee_id",
+currentEmployee.id
+)
+.eq(
+"attendance_date",
+today
+)
+.maybeSingle();
+
+
+if (existing) {
+
+alert(
+"आजची उपस्थिती आधीच नोंदवली आहे."
+);
+
+return;
+
+}
+
+
+const { error } =
+await supabaseClient
+.from("attendance")
+.insert({
+
+employee_id:
+currentEmployee.id,
+
+attendance_date:
+today,
+
+check_in:
+new Date().toISOString()
+
+});
+
+
+if (error) {
+
+alert(
+"Check-In अयशस्वी: " +
+error.message
+);
+
+return;
+
+}
+
+
+alert(
+"✅ Check-In यशस्वी!"
+);
+
+
+await loadTodayAttendance();
+
+await loadAttendanceHistory();
+
+}
+
+
+/* =====================================
+CHECK OUT
+===================================== */
+
+async function checkOut() {
+
+const today =
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+const { data, error } =
+await supabaseClient
+.from("attendance")
+.select("id,check_in,check_out")
+.eq(
+"employee_id",
+currentEmployee.id
+)
+.eq(
+"attendance_date",
+today
+)
+.single();
+
+
+if (error || !data) {
+
+alert(
+"आजचे Check-In सापडले नाही."
+);
+
+return;
+
+}
+
+
+if (data.check_out) {
+
+alert(
+"आजचा Check-Out आधीच झाला आहे."
+);
+
+return;
+
+}
+
+
+const { error: updateError } =
+await supabaseClient
+.from("attendance")
+.update({
+
+check_out:
+new Date().toISOString()
+
+})
+.eq(
+"id",
+data.id
+);
+
+
+if (updateError) {
+
+alert(
+"Check-Out अयशस्वी: " +
+updateError.message
+);
+
+return;
+
+}
+
+
+alert(
+"✅ Check-Out यशस्वी!"
+);
+
+
+await loadTodayAttendance();
+
+await loadAttendanceHistory();
+
+}
+
+
+/* =====================================
+DAILY WORK
+===================================== */
+
+async function submitWork() {
+
+const description =
+document.getElementById(
+"workDescription"
+).value.trim();
+
+const message =
+document.getElementById(
+"workMessage"
+);
+
+message.classList.remove("hidden");
+
+
+if (!description) {
+
+message.innerText =
+"कृपया आज केलेल्या कामाची माहिती लिहा.";
+
+return;
+
+}
+
+
+const { error } =
+await supabaseClient
+.from("daily_work")
+.insert({
+
+employee_id:
+currentEmployee.id,
+
+work_date:
+new Date()
+.toISOString()
+.split("T")[0],
+
+work_description:
+description
+
+});
+
+
+if (error) {
+
+message.innerText =
+"❌ कामाची नोंद अयशस्वी: " +
+error.message;
+
+return;
+
+}
+
+
+message.innerText =
+"✅ आजच्या कामाची नोंद झाली.";
+
+
+document.getElementById(
+"workDescription"
+).value = "";
+
+
+await loadWorkHistory();
+
+}
+
+
+/* =====================================
+ATTENDANCE HISTORY
+===================================== */
+
+async function loadAttendanceHistory() {
+
+const container =
+document.getElementById(
+"attendanceHistory"
+);
+
+
+const { data, error } =
+await supabaseClient
+.from("attendance")
+.select(
+"attendance_date,check_in,check_out"
+)
+.eq(
+"employee_id",
+currentEmployee.id
+)
+.order(
+"attendance_date",
+{ ascending:false }
+)
+.limit(30);
+
+
+if (error) {
+
+container.innerText =
+"❌ माहिती मिळाली नाही.";
+
+return;
+
+}
+
+
+if (!data.length) {
+
+container.innerHTML =
+"<p>अजून attendance नाही.</p>";
+
+return;
+
+}
+
+
+container.innerHTML = "";
+
+
+data.forEach(function(row) {
+
+const div =
+document.createElement("div");
+
+div.className =
+"history-item";
+
+
+let html =
+"<p><strong>तारीख:</strong> " +
+row.attendance_date +
+"</p>";
+
+html +=
+"<p><strong>Check-In:</strong> " +
+(row.check_in
+? new Date(row.check_in)
+.toLocaleTimeString()
+: "-") +
+"</p>";
+
+html +=
+"<p><strong>Check-Out:</strong> " +
+(row.check_out
+? new Date(row.check_out)
+.toLocaleTimeString()
+: "-") +
+"</p>";
+
+
+div.innerHTML = html;
+
+
+container.appendChild(div);
+
+});
+
+}
+
+
+/* =====================================
+WORK HISTORY
+===================================== */
+
+async function loadWorkHistory() {
+
+const container =
+document.getElementById(
+"workHistory"
+);
+
+
+const { data, error } =
+await supabaseClient
+.from("daily_work")
+.select(
+"work_date,work_description,created_at"
+)
+.eq(
+"employee_id",
+currentEmployee.id
+)
+.order(
+"created_at",
+{ ascending:false }
+)
+.limit(30);
+
+
+if (error) {
+
+container.innerText =
+"❌ माहिती मिळाली नाही.";
+
+return;
+
+}
+
+
+if (!data.length) {
+
+container.innerHTML =
+"<p>अजून कामाची नोंद नाही.</p>";
+
+return;
+
+}
+
+
+container.innerHTML = "";
+
+
+data.forEach(function(row) {
+
+const div =
+document.createElement("div");
+
+div.className =
+"history-item";
+
+
+div.innerHTML =
+
+"<p><strong>तारीख:</strong> " +
+row.work_date +
+"</p>" +
+
+"<p><strong>काम:</strong> " +
+escapeHtml(
+row.work_description
+) +
+"</p>";
+
+
+container.appendChild(div);
+
+});
+
+}
+
+
+/* =====================================
+EMPLOYEE LOGOUT
+===================================== */
+
+async function employeeLogout() {
+
+await supabaseClient.auth.signOut();
+
+currentEmployee = null;
+
+showPage("home");
+
+}
+
+
+/* =====================================
+ADMIN LOGIN
+===================================== */
+
+async function adminLoginUser() {
+
+const email =
+document.getElementById(
+"adminEmail"
+).value.trim();
+
+const password =
+document.getElementById(
+"adminPassword"
+).value;
+
+const message =
+document.getElementById(
+"adminMessage"
+);
+
+message.classList.remove("hidden");
+
+
+try {
+
+const { data, error } =
+await supabaseClient.auth
+.signInWithPassword({
+
+email: email,
+
+password: password
+
+});
+
+
+if (error) {
+
+throw error;
+
+}
+
+
+const { data: admin, error: adminError } =
+await supabaseClient
+.from("admins")
+.select("id")
+.eq(
+"user_id",
+data.user.id
+)
+.maybeSingle();
+
+
+if (adminError) {
+
+throw adminError;
+
+}
+
+
+if (!admin) {
+
+await supabaseClient.auth.signOut();
+
+message.innerText =
+"❌ तुम्हाला Admin access नाही.";
+
+return;
+
+}
+
+
+showPage("adminDashboard");
+
+await loadPendingEmployees();
+
+}
+
+catch(error) {
+
+message.innerText =
+"❌ Admin Login अयशस्वी: " +
+error.message;
+
+}
+
+}
+
+
+/* =====================================
+ADMIN EMPLOYEES
+===================================== */
 
 async function loadPendingEmployees() {
 
-  const container =
-    document.getElementById(
-      "pendingEmployees"
-    );
+const container =
+document.getElementById(
+"pendingEmployees"
+);
 
 
-  container.innerHTML =
-    "Loading...";
+container.innerHTML =
+"Loading...";
 
 
-  try {
-
-    const { data, error } =
-      await supabaseClient
-        .from("employees")
-        .select(
-          "id,full_name,mobile,email,designation,status,created_at"
-        )
-        .eq("status", "pending")
-        .order(
-          "created_at",
-          { ascending: false }
-        );
-
-
-    if (error) {
-      throw error;
-    }
+const { data, error } =
+await supabaseClient
+.from("employees")
+.select(
+"id,full_name,mobile,email,designation,status,created_at"
+)
+.eq(
+"status",
+"pending"
+)
+.order(
+"created_at",
+{ ascending:false }
+);
 
 
-    if (!data || data.length === 0) {
+if (error) {
 
-      container.innerHTML =
-        "<p>🎉 कोणतेही Pending employee नाहीत.</p>";
+container.innerText =
+"❌ माहिती मिळाली नाही: " +
+error.message;
 
-      return;
-    }
-
-
-    container.innerHTML = "";
-
-
-    data.forEach(function(employee) {
-
-      const div =
-        document.createElement("div");
-
-      div.className =
-        "employee";
-
-
-      div.innerHTML = `
-
-        <h3>${escapeHtml(employee.full_name)}</h3>
-
-        <p>
-          <strong>मोबाईल:</strong>
-          ${escapeHtml(employee.mobile)}
-        </p>
-
-        <p>
-          <strong>Email:</strong>
-          ${escapeHtml(employee.email)}
-        </p>
-
-        <p>
-          <strong>पद:</strong>
-          ${escapeHtml(employee.designation)}
-        </p>
-
-        <p>
-          <strong>Status:</strong>
-          Pending
-        </p>
-
-        <button
-          class="green"
-          onclick="updateEmployeeStatus(
-            '${employee.id}',
-            'approved'
-          )">
-
-          ✅ Approve
-
-        </button>
-
-        <button
-          class="red"
-          onclick="updateEmployeeStatus(
-            '${employee.id}',
-            'rejected'
-          )">
-
-          ❌ Reject
-
-        </button>
-
-      `;
-
-
-      container.appendChild(div);
-
-    });
-
-  }
-
-  catch (error) {
-
-    container.innerHTML =
-      "❌ माहिती मिळवता आली नाही: " +
-      escapeHtml(error.message);
-
-  }
+return;
 
 }
 
 
-/* ==========================================
-   APPROVE / REJECT
-   ========================================== */
+if (!data.length) {
+
+container.innerHTML =
+"<p>🎉 कोणतेही Pending employee नाहीत.</p>";
+
+return;
+
+}
+
+
+container.innerHTML = "";
+
+
+data.forEach(function(employee) {
+
+const div =
+document.createElement("div");
+
+div.className =
+"employee";
+
+
+div.innerHTML =
+
+"<h3>" +
+escapeHtml(
+employee.full_name
+) +
+"</h3>" +
+
+"<p><strong>मोबाईल:</strong> " +
+escapeHtml(
+employee.mobile
+) +
+"</p>" +
+
+"<p><strong>Email:</strong> " +
+escapeHtml(
+employee.email
+) +
+"</p>" +
+
+"<p><strong>पद:</strong> " +
+escapeHtml(
+employee.designation
+) +
+"</p>" +
+
+"<p><strong>Status:</strong> " +
+employee.status +
+"</p>" +
+
+"<button class='green' " +
+"onclick=\"updateEmployeeStatus('" +
+employee.id +
+"','approved')\">" +
+"✅ Approve" +
+"</button>" +
+
+"<button class='red' " +
+"onclick=\"updateEmployeeStatus('" +
+employee.id +
+"','rejected')\">" +
+"❌ Reject" +
+"</button>";
+
+
+container.appendChild(div);
+
+});
+
+}
+
+
+/* =====================================
+APPROVE / REJECT
+===================================== */
 
 async function updateEmployeeStatus(
-  employeeId,
-  newStatus
+employeeId,
+newStatus
 ) {
 
-  const text =
-    newStatus === "approved"
-      ? "Approve"
-      : "Reject";
+const confirmed =
+confirm(
+newStatus === "approved"
+? "कर्मचारी Approve करायचा आहे का?"
+: "कर्मचारी Reject करायचा आहे का?"
+);
 
 
-  const confirmed =
-    confirm(
-      "कर्मचारी " +
-      text +
-      " करायचा आहे का?"
-    );
+if (!confirmed) {
+return;
+}
 
 
-  if (!confirmed) {
-    return;
-  }
+const { error } =
+await supabaseClient
+.from("employees")
+.update({
+
+status:
+newStatus
+
+})
+.eq(
+"id",
+employeeId
+);
 
 
-  try {
+if (error) {
 
-    const { error } =
-      await supabaseClient
-        .from("employees")
-        .update({
-          status: newStatus
-        })
-        .eq("id", employeeId);
+alert(
+"Update failed: " +
+error.message
+);
 
-
-    if (error) {
-      throw error;
-    }
-
-
-    alert(
-      newStatus === "approved"
-        ? "कर्मचारी Approved झाला."
-        : "कर्मचारी Rejected झाला."
-    );
-
-
-    loadPendingEmployees();
-
-  }
-
-  catch (error) {
-
-    alert(
-      "Update failed: " +
-      error.message
-    );
-
-  }
+return;
 
 }
 
 
-/* ==========================================
-   ADMIN LOGOUT
-   ========================================== */
+alert(
+newStatus === "approved"
+? "✅ कर्मचारी Approved झाला."
+: "❌ कर्मचारी Rejected झाला."
+);
+
+
+await loadPendingEmployees();
+
+}
+
+
+/* =====================================
+ADMIN LOGOUT
+===================================== */
 
 async function adminLogout() {
 
-  await supabaseClient.auth.signOut();
+await supabaseClient.auth.signOut();
 
-  showPage("home");
+showPage("home");
 
 }
 
 
-/* ==========================================
-   HTML SAFETY
-   ========================================== */
+/* =====================================
+HTML SAFETY
+===================================== */
 
 function escapeHtml(value) {
 
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+return String(value)
+
+.replaceAll("&","&amp;")
+
+.replaceAll("<","&lt;")
+
+.replaceAll(">","&gt;")
+
+.replaceAll('"',"&quot;")
+
+.replaceAll("'","&#039;");
 
 }
 
