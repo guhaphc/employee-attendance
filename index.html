@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>hi
 <html lang="mr">
 <head>
 
@@ -573,6 +573,32 @@ Loading...
 </div>
 
 </div>
+
+  <div class="card">
+
+<h2>👥 सर्व कर्मचारी</h2>
+
+<input
+id="employeeSearch"
+type="text"
+placeholder="कर्मचारी नाव / मोबाईल / Email शोधा..."
+oninput="filterEmployees()">
+
+<button
+class="purple"
+onclick="loadAllEmployees()">
+
+🔄 कर्मचारी यादी Refresh करा
+
+</button>
+
+<div id="allEmployees">
+
+Loading...
+
+</div>
+
+  </div>
   <div class="card">
 
 <h2>📊 Attendance Report</h2>
@@ -2007,7 +2033,169 @@ function formatTime(value) {
     .toLocaleTimeString();
 
 }
-function escapeHtml(value) {
+let allEmployeesData = [];
+
+async function loadAllEmployees() {
+
+  const container =
+    document.getElementById("allEmployees");
+
+  container.innerHTML =
+    "कर्मचारी यादी Loading...";
+
+  try {
+
+    const { data, error } =
+      await supabaseClient
+        .from("employees")
+        .select(
+          "id,full_name,mobile,email,designation,status,created_at"
+        )
+        .order(
+          "full_name",
+          { ascending: true }
+        );
+
+    if (error) {
+      throw error;
+    }
+
+    allEmployeesData = data || [];
+
+    displayEmployees(allEmployeesData);
+
+  }
+
+  catch(error) {
+
+    container.innerHTML =
+      "❌ कर्मचारी यादी मिळाली नाही: " +
+      escapeHtml(error.message);
+
+  }
+}
+
+
+function displayEmployees(employees) {
+
+  const container =
+    document.getElementById("allEmployees");
+
+  if (!employees.length) {
+
+    container.innerHTML =
+      "<p>कोणतेही कर्मचारी सापडले नाहीत.</p>";
+
+    return;
+  }
+
+  container.innerHTML = "";
+
+  employees.forEach(function(employee) {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "employee";
+
+    let statusText = "";
+    let statusClass = "";
+
+    if (employee.status === "approved") {
+
+      statusText = "🟢 Approved";
+      statusClass = "green";
+
+    }
+    else if (employee.status === "pending") {
+
+      statusText = "🟡 Pending";
+      statusClass = "orange";
+
+    }
+    else {
+
+      statusText = "🔴 Rejected";
+      statusClass = "red";
+
+    }
+
+    div.innerHTML =
+
+      "<h3>" +
+      escapeHtml(employee.full_name) +
+      "</h3>" +
+
+      "<p><strong>पद:</strong> " +
+      escapeHtml(employee.designation || "-") +
+      "</p>" +
+
+      "<p><strong>मोबाईल:</strong> " +
+      escapeHtml(employee.mobile || "-") +
+      "</p>" +
+
+      "<p><strong>Email:</strong> " +
+      escapeHtml(employee.email || "-") +
+      "</p>" +
+
+      "<p><strong>Status:</strong> " +
+      statusText +
+      "</p>";
+
+    container.appendChild(div);
+
+  });
+
+}
+
+
+function filterEmployees() {
+
+  const search =
+    document.getElementById(
+      "employeeSearch"
+    ).value
+      .trim()
+      .toLowerCase();
+
+  const filtered =
+    allEmployeesData.filter(
+      function(employee) {
+
+        return (
+
+          (employee.full_name || "")
+            .toLowerCase()
+            .includes(search)
+
+          ||
+
+          (employee.mobile || "")
+            .toLowerCase()
+            .includes(search)
+
+          ||
+
+          (employee.email || "")
+            .toLowerCase()
+            .includes(search)
+
+          ||
+
+          (employee.designation || "")
+            .toLowerCase()
+            .includes(search)
+
+        );
+
+      }
+    );
+
+  displayEmployees(filtered);
+
+}
+  
+  function escapeHtml(value) {
 
 return String(value)
 
