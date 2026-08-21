@@ -3,7 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Employee Attendance</title>
+  <title>कर्मचारी उपस्थिती प्रणाली</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
@@ -21,25 +23,20 @@
     .header {
       background: #1769aa;
       color: white;
-      padding: 25px 20px;
       text-align: center;
+      padding: 25px 15px;
       border-radius: 0 0 25px 25px;
     }
 
     .header h1 {
-      font-size: 25px;
-      margin-bottom: 8px;
-    }
-
-    .header p {
-      font-size: 14px;
-      opacity: 0.9;
+      font-size: 23px;
+      margin-bottom: 7px;
     }
 
     .container {
       max-width: 500px;
       margin: auto;
-      padding: 25px 18px;
+      padding: 20px 16px;
     }
 
     .card {
@@ -47,48 +44,69 @@
       padding: 22px;
       margin-bottom: 16px;
       border-radius: 18px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 15px rgba(0,0,0,.08);
     }
 
-    .card h2 {
-      font-size: 19px;
-      margin-bottom: 8px;
-    }
-
-    .card p {
-      color: #666;
-      font-size: 14px;
+    h2 {
       margin-bottom: 18px;
+    }
+
+    p {
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      margin-bottom: 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
     }
 
     button {
       width: 100%;
-      border: none;
       padding: 14px;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
+      border: 0;
+      border-radius: 11px;
       background: #1769aa;
       color: white;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 6px;
+      cursor: pointer;
     }
 
-    button:hover {
-      opacity: 0.9;
-    }
-
-    .register {
+    .green {
       background: #198754;
     }
 
-    .admin {
+    .purple {
       background: #6f42c1;
+    }
+
+    .gray {
+      background: #777;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #eef3f8;
+      font-size: 14px;
+      line-height: 1.5;
     }
 
     .footer {
       text-align: center;
-      padding: 20px;
       color: #777;
+      padding: 20px;
       font-size: 13px;
     }
   </style>
@@ -98,33 +116,117 @@
 
   <div class="header">
     <h1>कर्मचारी उपस्थिती प्रणाली</h1>
-    <p>Employee Attendance System</p>
+    <p style="color:white;">Employee Attendance System</p>
   </div>
 
   <div class="container">
 
-    <div class="card">
-      <h2>नवीन कर्मचारी</h2>
-      <p>नवीन कर्मचारी म्हणून नोंदणी करा.</p>
-      <button class="register" onclick="registerEmployee()">
-        नवीन नोंदणी
-      </button>
+    <!-- HOME -->
+    <div id="home">
+
+      <div class="card">
+        <h2>नवीन कर्मचारी</h2>
+        <p>नवीन कर्मचारी म्हणून नोंदणी करा.</p>
+
+        <button class="green" onclick="showPage('register')">
+          नवीन नोंदणी
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>कर्मचारी Login</h2>
+        <p>तुमच्या खात्यात Login करा.</p>
+
+        <button onclick="showPage('login')">
+          कर्मचारी Login
+        </button>
+      </div>
+
+      <div class="card">
+        <h2>Admin</h2>
+        <p>कर्मचारी व्यवस्थापनासाठी Admin विभाग.</p>
+
+        <button class="purple" onclick="adminLogin()">
+          Admin Login
+        </button>
+      </div>
+
     </div>
 
-    <div class="card">
+
+    <!-- REGISTRATION -->
+    <div id="register" class="card hidden">
+
+      <h2>नवीन कर्मचारी नोंदणी</h2>
+
+      <input
+        id="regName"
+        type="text"
+        placeholder="पूर्ण नाव">
+
+      <input
+        id="regMobile"
+        type="tel"
+        placeholder="मोबाईल नंबर">
+
+      <input
+        id="regEmail"
+        type="email"
+        placeholder="Email">
+
+      <input
+        id="regDesignation"
+        type="text"
+        placeholder="पद / Designation">
+
+      <input
+        id="regPassword"
+        type="password"
+        placeholder="Password">
+
+      <input
+        id="regConfirm"
+        type="password"
+        placeholder="Password पुन्हा टाका">
+
+      <button class="green" onclick="registerEmployee()">
+        नोंदणी करा
+      </button>
+
+      <button class="gray" onclick="showPage('home')">
+        मागे जा
+      </button>
+
+      <div id="registerMessage" class="message hidden"></div>
+
+    </div>
+
+
+    <!-- LOGIN -->
+    <div id="login" class="card hidden">
+
       <h2>कर्मचारी Login</h2>
-      <p>तुमच्या खात्यात Login करून उपस्थिती व कामाची नोंद करा.</p>
-      <button onclick="employeeLogin()">
-        कर्मचारी Login
-      </button>
-    </div>
 
-    <div class="card">
-      <h2>Admin</h2>
-      <p>कर्मचारी मंजुरी, उपस्थिती आणि कामाची माहिती व्यवस्थापित करा.</p>
-      <button class="admin" onclick="adminLogin()">
-        Admin Login
+      <input
+        id="loginEmail"
+        type="email"
+        placeholder="Email">
+
+      <input
+        id="loginPassword"
+        type="password"
+        placeholder="Password">
+
+      <button onclick="employeeLogin()">
+        Login
       </button>
+
+      <button class="gray" onclick="showPage('home')">
+        मागे जा
+      </button>
+
+      <div id="loginMessage" class="message hidden"></div>
+
     </div>
 
   </div>
@@ -133,18 +235,304 @@
     © 2026 Employee Attendance System
   </div>
 
+
   <script>
-    function registerEmployee() {
-      alert("कर्मचारी नोंदणी लवकरच उपलब्ध होईल.");
+
+    /* ==================================
+       SUPABASE CONNECTION
+       ================================== */
+
+    const SUPABASE_URL = "https://ndlnpxedaqbdjrtlrkpz.supabase.co";
+
+    const SUPABASE_KEY = "sb_publishable_A-ME8uqfZdnZ51zf6S77Fg_8hQrZEG4";
+
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+
+    /* ==================================
+       PAGE CHANGE
+       ================================== */
+
+    function showPage(page) {
+
+      document.getElementById("home")
+        .classList.add("hidden");
+
+      document.getElementById("register")
+        .classList.add("hidden");
+
+      document.getElementById("login")
+        .classList.add("hidden");
+
+      document.getElementById(page)
+        .classList.remove("hidden");
     }
 
-    function employeeLogin() {
-      alert("कर्मचारी Login लवकरच उपलब्ध होईल.");
+
+    /* ==================================
+       EMPLOYEE REGISTRATION
+       ================================== */
+
+    async function registerEmployee() {
+
+      const name =
+        document.getElementById("regName").value.trim();
+
+      const mobile =
+        document.getElementById("regMobile").value.trim();
+
+      const email =
+        document.getElementById("regEmail").value.trim();
+
+      const designation =
+        document.getElementById("regDesignation").value.trim();
+
+      const password =
+        document.getElementById("regPassword").value;
+
+      const confirmPassword =
+        document.getElementById("regConfirm").value;
+
+      const message =
+        document.getElementById("registerMessage");
+
+
+      message.classList.remove("hidden");
+
+
+      if (
+        !name ||
+        !mobile ||
+        !email ||
+        !designation ||
+        !password
+      ) {
+
+        message.innerText =
+          "कृपया सर्व माहिती भरा.";
+
+        return;
+      }
+
+
+      if (password !== confirmPassword) {
+
+        message.innerText =
+          "दोन्ही Password समान असणे आवश्यक आहे.";
+
+        return;
+      }
+
+
+      if (password.length < 6) {
+
+        message.innerText =
+          "Password किमान 6 अक्षरांचा असावा.";
+
+        return;
+      }
+
+
+      message.innerText =
+        "नोंदणी सुरू आहे...";
+
+
+      try {
+
+        /* Create Supabase Auth user */
+
+        const { data, error } =
+          await supabaseClient.auth.signUp({
+            email: email,
+            password: password
+          });
+
+
+        if (error) {
+          throw error;
+        }
+
+
+        if (!data.user) {
+          throw new Error(
+            "User तयार झाला नाही."
+          );
+        }
+
+
+        /* Save employee information */
+
+        const { error: profileError } =
+          await supabaseClient
+            .from("employees")
+            .insert({
+
+              user_id: data.user.id,
+
+              full_name: name,
+
+              mobile: mobile,
+
+              email: email,
+
+              designation: designation,
+
+              status: "pending"
+
+            });
+
+
+        if (profileError) {
+          throw profileError;
+        }
+
+
+        message.innerText =
+          "✅ नोंदणी यशस्वी झाली! " +
+          "Admin approval नंतर तुम्ही Login करू शकता.";
+
+
+        /* Clear form */
+
+        document.getElementById("regName").value = "";
+
+        document.getElementById("regMobile").value = "";
+
+        document.getElementById("regEmail").value = "";
+
+        document.getElementById("regDesignation").value = "";
+
+        document.getElementById("regPassword").value = "";
+
+        document.getElementById("regConfirm").value = "";
+
+      }
+
+      catch (error) {
+
+        message.innerText =
+          "❌ नोंदणी अयशस्वी: " +
+          error.message;
+
+      }
+
     }
+
+
+    /* ==================================
+       EMPLOYEE LOGIN
+       ================================== */
+
+    async function employeeLogin() {
+
+      const email =
+        document.getElementById("loginEmail")
+          .value.trim();
+
+      const password =
+        document.getElementById("loginPassword")
+          .value;
+
+      const message =
+        document.getElementById("loginMessage");
+
+
+      message.classList.remove("hidden");
+
+
+      if (!email || !password) {
+
+        message.innerText =
+          "Email आणि Password भरा.";
+
+        return;
+      }
+
+
+      message.innerText =
+        "Login तपासले जात आहे...";
+
+
+      try {
+
+        const { data, error } =
+          await supabaseClient.auth
+            .signInWithPassword({
+
+              email: email,
+
+              password: password
+
+            });
+
+
+        if (error) {
+          throw error;
+        }
+
+
+        const { data: employee, error: employeeError } =
+          await supabaseClient
+            .from("employees")
+            .select(
+              "full_name, status, designation"
+            )
+            .eq("user_id", data.user.id)
+            .single();
+
+
+        if (employeeError) {
+          throw employeeError;
+        }
+
+
+        /* Check admin approval */
+
+        if (employee.status !== "approved") {
+
+          await supabaseClient.auth.signOut();
+
+          message.innerText =
+            "⏳ तुमचे खाते अजून Admin ने मंजूर केलेले नाही.";
+
+          return;
+        }
+
+
+        message.innerText =
+          "✅ Login यशस्वी! स्वागत आहे, " +
+          employee.full_name;
+
+      }
+
+      catch (error) {
+
+        message.innerText =
+          "❌ Login अयशस्वी: " +
+          error.message;
+
+      }
+
+    }
+
+
+    /* ==================================
+       ADMIN
+       ================================== */
 
     function adminLogin() {
-      alert("Admin Login लवकरच उपलब्ध होईल.");
+
+      alert(
+        "Admin Login पुढील step मध्ये तयार करू."
+      );
+
     }
+
   </script>
 
 </body>
