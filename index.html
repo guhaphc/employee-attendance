@@ -1,1 +1,151 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Attendance</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #222;
+    }
+
+    .header {
+      background: #1769aa;
+      color: white;
+      padding: 25px 20px;
+      text-align: center;
+      border-radius: 0 0 25px 25px;
+    }
+
+    .header h1 {
+      font-size: 25px;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 25px 18px;
+    }
+
+    .card {
+      background: white;
+      padding: 22px;
+      margin-bottom: 16px;
+      border-radius: 18px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      font-size: 19px;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #1769aa;
+      color: white;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .register {
+      background: #198754;
+    }
+
+    .admin {
+      background: #6f42c1;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #777;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>कर्मचारी उपस्थिती प्रणाली</h1>
+    <p>Employee Attendance System</p>
+  </div>
+
+  <div class="container">
+
+    <div class="card">
+      <h2>नवीन कर्मचारी</h2>
+      <p>नवीन कर्मचारी म्हणून नोंदणी करा.</p>
+      <button class="register" onclick="registerEmployee()">
+        नवीन नोंदणी
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>कर्मचारी Login</h2>
+      <p>तुमच्या खात्यात Login करून उपस्थिती व कामाची नोंद करा.</p>
+      <button onclick="employeeLogin()">
+        कर्मचारी Login
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>Admin</h2>
+      <p>कर्मचारी मंजुरी, उपस्थिती आणि कामाची माहिती व्यवस्थापित करा.</p>
+      <button class="admin" onclick="adminLogin()">
+        Admin Login
+      </button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    © 2026 Employee Attendance System
+  </div>
+
+  <script>
+    function registerEmployee() {
+      alert("कर्मचारी नोंदणी लवकरच उपलब्ध होईल.");
+    }
+
+    function employeeLogin() {
+      alert("कर्मचारी Login लवकरच उपलब्ध होईल.");
+    }
+
+    function adminLogin() {
+      alert("Admin Login लवकरच उपलब्ध होईल.");
+    }
+  </script>
+
+</body>
+</html>
