@@ -573,6 +573,31 @@ Loading...
 </div>
 
 </div>
+  <div class="card">
+
+<h2>📊 Attendance Report</h2>
+
+<input
+id="reportDate"
+type="date">
+
+<button
+class="purple"
+onclick="loadAdminReport()">
+
+Report पाहा
+
+</button>
+
+<div
+id="adminReport"
+class="message">
+
+तारीख निवडा आणि Report पाहा.
+
+</div>
+
+  </div>
 
 </div>
 
@@ -1722,7 +1747,266 @@ showPage("home");
 /* =====================================
 HTML SAFETY
 ===================================== */
+async function loadAdminReport() {
 
+  const date =
+    document.getElementById("reportDate").value;
+
+  const report =
+    document.getElementById("adminReport");
+
+  if (!date) {
+
+    report.innerText =
+      "कृपया तारीख निवडा.";
+
+    return;
+  }
+
+  report.innerText =
+    "Report तयार होत आहे...";
+
+
+  try {
+
+    /* Get all approved employees */
+
+    const { data: employees, error: employeeError } =
+      await supabaseClient
+        .from("employees")
+        .select(
+          "id,full_name,mobile,designation,status"
+        )
+        .eq(
+          "status",
+          "approved"
+        )
+        .order(
+          "full_name",
+          { ascending: true }
+        );
+
+
+    if (employeeError) {
+      throw employeeError;
+    }
+
+
+    /* Get attendance */
+
+    const { data: attendance, error: attendanceError } =
+      await supabaseClient
+        .from("attendance")
+        .select(
+          "employee_id,attendance_date,check_in,check_out"
+        )
+        .eq(
+          "attendance_date",
+          date
+        );
+
+
+    if (attendanceError) {
+      throw attendanceError;
+    }
+
+
+    /* Get daily work */
+
+    const { data: works, error: workError } =
+      await supabaseClient
+        .from("daily_work")
+        .select(
+          "employee_id,work_date,work_description"
+        )
+        .eq(
+          "work_date",
+          date
+        );
+
+
+    if (workError) {
+      throw workError;
+    }
+
+
+    let html = "";
+
+    html +=
+      "<h3>📅 " +
+      date +
+      "</h3>";
+
+
+    html +=
+      "<p><strong>एकूण कर्मचारी:</strong> " +
+      employees.length +
+      "</p>";
+
+
+    let presentCount = 0;
+
+
+    employees.forEach(function(employee) {
+
+      const att =
+        attendance.find(
+          function(item) {
+
+            return item.employee_id ===
+              employee.id;
+
+          }
+        );
+
+
+      const work =
+        works.find(
+          function(item) {
+
+            return item.employee_id ===
+              employee.id;
+
+          }
+        );
+
+
+      if (att) {
+
+        presentCount++;
+
+      }
+
+
+      html +=
+        "<div class='history-item'>";
+
+
+      html +=
+        "<h3>" +
+        escapeHtml(
+          employee.full_name
+        ) +
+        "</h3>";
+
+
+      html +=
+        "<p><strong>पद:</strong> " +
+        escapeHtml(
+          employee.designation
+        ) +
+        "</p>";
+
+
+      if (att) {
+
+        html +=
+          "<p>🟢 <strong>उपस्थित</strong></p>";
+
+
+        html +=
+          "<p><strong>Check-In:</strong> " +
+          formatTime(
+            att.check_in
+          ) +
+          "</p>";
+
+
+        html +=
+          "<p><strong>Check-Out:</strong> " +
+          formatTime(
+            att.check_out
+          ) +
+          "</p>";
+
+      }
+
+      else {
+
+        html +=
+          "<p>🔴 <strong>उपस्थिती नाही</strong></p>";
+
+      }
+
+
+      if (work) {
+
+        html +=
+          "<p><strong>📝 आजचे काम:</strong><br>" +
+          escapeHtml(
+            work.work_description
+          ) +
+          "</p>";
+
+      }
+
+      else {
+
+        html +=
+          "<p><strong>📝 आजचे काम:</strong> नोंद नाही</p>";
+
+      }
+
+
+      html +=
+        "</div>";
+
+    });
+
+
+    const absentCount =
+      employees.length -
+      presentCount;
+
+
+    html =
+      "<div class='status-box'>" +
+
+      "<p>👥 एकूण: " +
+      employees.length +
+      "</p>" +
+
+      "<p>🟢 उपस्थित: " +
+      presentCount +
+      "</p>" +
+
+      "<p>🔴 अनुपस्थित: " +
+      absentCount +
+      "</p>" +
+
+      "</div>" +
+
+      html;
+
+
+    report.innerHTML =
+      html;
+
+  }
+
+  catch(error) {
+
+    report.innerText =
+      "❌ Report मिळवता आला नाही: " +
+      error.message;
+
+  }
+
+}
+
+
+function formatTime(value) {
+
+  if (!value) {
+
+    return "-";
+
+  }
+
+  return new Date(value)
+    .toLocaleTimeString();
+
+}
 function escapeHtml(value) {
 
 return String(value)
