@@ -1387,6 +1387,41 @@ return;
 
 }
 
+  // 8 तास पूर्ण झाले आहेत का ते तपासा
+const checkInTime = new Date(data.check_in);
+const now = new Date();
+
+const requiredTime =
+  checkInTime.getTime() + (8 * 60 * 60 * 1000);
+
+if (now.getTime() < requiredTime) {
+
+  const remainingMs =
+    requiredTime - now.getTime();
+
+  const remainingHours =
+    Math.floor(
+      remainingMs / (60 * 60 * 1000)
+    );
+
+  const remainingMinutes =
+    Math.floor(
+      (remainingMs % (60 * 60 * 1000)) /
+      (60 * 1000)
+    );
+
+  alert(
+    "⛔ Check-Out करता येणार नाही.\n\n" +
+    "Check-In पासून अजून 8 तास पूर्ण झालेले नाहीत.\n\n" +
+    "अजून " +
+    remainingHours +
+    " तास " +
+    remainingMinutes +
+    " मिनिटे बाकी आहेत."
+  );
+
+  return;
+}
 
 if (data.check_out) {
 
