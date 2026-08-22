@@ -1282,32 +1282,54 @@ async function checkIn() {
 
           return;
         }
+// ================================
+// SELFIE REQUIRED BEFORE CHECK-IN
+// ================================
 
-        // Attendance नोंदवा
-        const { error } =
-          await supabaseClient
-            .from("attendance")
-            .insert({
+const selfieSection =
+    document.getElementById("selfieSection");
 
-              employee_id:
-                currentEmployee.id,
+if (!selfieSection) {
+    throw new Error("Selfie section सापडला नाही.");
+}
 
-              attendance_date:
-                today,
+// Selfie section दाखवा
+selfieSection.style.display = "block";
 
-              check_in:
-                new Date().toISOString(),
+// Camera सुरू करा
+const video =
+    document.getElementById("selfieVideo");
 
-              check_in_latitude:
-                userLat,
+try {
 
-              check_in_longitude:
-                userLng,
+    const stream =
+        await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: "user"
+            },
+            audio: false
+        });
 
-              check_in_accuracy:
-                accuracy
+    video.srcObject = stream;
 
-            });
+    await video.play();
+
+} catch (cameraError) {
+
+    alert(
+        "📸 Selfie Camera सुरू करता आली नाही.\n\n" +
+        "Camera Permission → Allow करा."
+    );
+
+    return;
+}
+
+// Selfie घेण्याची वाट पाहा
+alert(
+    "📸 आता Selfie काढा.\n\n" +
+    "Selfie घेतल्याशिवाय Check-In होणार नाही."
+);
+        
 
         if (error) {
           throw error;
