@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>कर्मचारी उपस्थिती प्रणाली</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f7fb;
+  color: #222;
+}
+
+.header {
+  background: #1769aa;
+  color: white;
+  text-align: center;
+  padding: 25px 15px;
+  border-radius: 0 0 25px 25px;
+}
+
+.header h1 {
+  font-size: 23px;
+  margin-bottom: 7px;
+}
+
+.header p {
+  color: white;
+}
+
+.container {
+  max-width: 520px;
+  margin: auto;
+  padding: 20px 16px;
+}
+
+.card {
+  background: white;
+  padding: 22px;
+  margin-bottom: 16px;
+  border-radius: 18px;
+  box-shadow: 0 4px 15px rgba(0,0,0,.08);
+}
+
+h2 {
+  margin-bottom: 15px;
+}
+
+h3 {
+  margin-bottom: 10px;
+}
+
+p {
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  border-radius: 11px;
+  background: #1769aa;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 7px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+
+.green {
+  background: #198754;
+}
+
+.red {
+  background: #dc3545;
+}
+
+.purple {
+  background: #6f42c1;
+}
+
+.orange {
+  background: #fd7e14;
+}
+
+.gray {
+  background: #777;
+}
+
+.hidden {
+  display: none;
+}
+
+.message {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #eef3f8;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.status-box {
+  padding: 18px;
+  border-radius: 14px;
+  background: #eef3f8;
+  margin-bottom: 15px;
+  white-space: pre-line;
+}
+
+.history-item {
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+
+.history-item p {
+  margin-bottom: 5px;
+}
+
+.employee {
+  border: 1px solid #ddd;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.employee p {
+  margin-bottom: 5px;
+}
+
+.footer {
+  text-align: center;
+  color: #777;
+  padding: 20px;
+  font-size: 13px;
+}
+
+#selfiePreview img {
+  width: 100%;
+  border-radius: 15px;
+  margin-top: 10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+<h1>कर्मचारी उपस्थिती प्रणाली</h1>
+
+<p>Employee Attendance System</p>
+
+</div>
+
+
+<div class="container">
+
+
+<!-- ================= HOME ================= -->
+
+<div id="home">
+
+<div class="card">
+
+<h2>नवीन कर्मचारी</h2>
+
+<p>
+नवीन कर्मचारी म्हणून नोंदणी करा.
+</p>
+
+<button
+class="green"
+onclick="showPage('register')">
+
+नवीन नोंदणी
+
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>कर्मचारी Login</h2>
+
+<p>
+उपस्थिती आणि दैनंदिन कामाची नोंद करण्यासाठी Login करा.
+</p>
+
+<button
+onclick="showPage('employeeLogin')">
+
+कर्मचारी Login
+
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>Admin</h2>
+
+<p>
+कर्मचारी व्यवस्थापन आणि मंजुरी.
+</p>
+
+<button
+class="purple"
+onclick="showPage('adminLogin')">
+
+Admin Login
+
+</button>
+
+</div>
+
+</div>
+
+
+<!-- ================= REGISTER ================= -->
+
+<div id="register" class="card hidden">
+
+<h2>नवीन कर्मचारी नोंदणी</h2>
+
+<input
+id="regName"
+type="text"
+placeholder="पूर्ण नाव">
+
+<input
+id="regMobile"
+type="tel"
+placeholder="मोबाईल नंबर">
+
+<input
+id="regEmail"
+type="email"
+placeholder="Email">
+
+<input
+id="regDesignation"
+type="text"
+placeholder="पद / Designation">
+
+<input
+id="regPassword"
+type="password"
+placeholder="Password">
+
+<input
+id="regConfirm"
+type="password"
+placeholder="Password पुन्हा टाका">
+
+<button
+class="green"
+onclick="registerEmployee()">
+
+नोंदणी करा
+
+</button>
+
+<button
+class="gray"
+onclick="showPage('home')">
+
+मागे जा
+
+</button>
+
+<div
+id="registerMessage"
+class="message hidden">
+</div>
+
+</div>
+
+
+<!-- ================= EMPLOYEE LOGIN ================= -->
+
+<div id="employeeLogin" class="card hidden">
+
+<h2>कर्मचारी Login</h2>
+
+<input
+id="loginEmail"
+type="email"
+placeholder="Email">
+
+<input
+id="loginPassword"
+type="password"
+placeholder="Password">
+
+<button
+onclick="employeeLogin()">
+
+Login
+
+</button>
+
+<button
+class="gray"
+onclick="showPage('home')">
+
+मागे जा
+
+</button>
+
+<div
+id="loginMessage"
+class="message hidden">
+</div>
+
+</div>
+
+
+<!-- ================= EMPLOYEE DASHBOARD ================= -->
+
+<div id="employeeDashboard" class="hidden">
+
+<div class="card">
+
+<h2 id="employeeName">
+कर्मचारी Dashboard
+</h2>
+
+<p id="employeeDesignation"></p>
+
+<button
+class="red"
+onclick="employeeLogout()">
+
+Logout
+
+</button>
+
+</div>
+
+
+<!-- TODAY ATTENDANCE -->
+
+<div class="card">
+
+<h2>आजची उपस्थिती</h2>
+
+<div
+id="attendanceStatus"
+class="status-box">
+
+उपस्थिती माहिती Loading...
+
+</div>
+
+<button
+class="green"
+id="checkInButton"
+onclick="checkIn()">
+
+🟢 Check-In
+
+</button>
+
+<button
+class="orange"
+id="checkOutButton"
+onclick="checkOut()">
+
+🔴 Check-Out
+
+</button>
+
+</div>
+
+
+<!-- SELFIE -->
+
+<div
+class="card"
+id="selfieSection"
+style="display:none;">
+
+<h2>📸 Check-In Selfie</h2>
+
+<video
+id="selfieVideo"
+autoplay
+playsinline
+style="width:100%;border-radius:15px;">
+</video>
+
+<canvas
+id="selfieCanvas"
+style="display:none;">
+</canvas>
+
+<button
+class="purple"
+onclick="captureSelfie()">
+
+📸 Selfie काढा
+
+</button>
+
+<div id="selfiePreview"></div>
+
+<div
+id="selfieLocation"
+class="message">
+
+GPS Location मिळवत आहे...
+
+</div>
+
+<button
+id="confirmSelfieButton"
+class="green"
+style="display:none;"
+onclick="confirmSelfieAndCheckIn()">
+
+✅ Selfie Confirm करून Check-In करा
+
+</button>
+
+<button
+id="retakeSelfieButton"
+class="gray"
+style="display:none;"
+onclick="retakeSelfie()">
+
+🔄 पुन्हा Selfie काढा
+
+</button>
+
+</div>
+
+
+<!-- DAILY WORK -->
+
+<div class="card">
+
+<h2>आजचे काम</h2>
+
+<textarea
+id="workDescription"
+placeholder="आज केलेल्या कामाची माहिती लिहा...">
+</textarea>
+
+<button
+onclick="submitWork()">
+
+📝 कामाची नोंद करा
+
+</button>
+
+<div
+id="workMessage"
+class="message hidden">
+</div>
+
+</div>
+
+
+<!-- ATTENDANCE HISTORY -->
+
+<div class="card">
+
+<h2>उपस्थिती इतिहास</h2>
+
+<button
+onclick="loadAttendanceHistory()">
+
+Refresh
+
+</button>
+
+<div id="attendanceHistory">
+Loading...
+</div>
+
+</div>
+
+
+<!-- WORK HISTORY -->
+
+<div class="card">
+
+<h2>कामाचा इतिहास</h2>
+
+<button
+onclick="loadWorkHistory()">
+
+Refresh
+
+</button>
+
+<div id="workHistory">
+Loading...
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= ADMIN LOGIN ================= -->
+
+<div id="adminLogin" class="card hidden">
+
+<h2>Admin Login</h2>
+
+<input
+id="adminEmail"
+type="email"
+placeholder="Admin Email">
+
+<input
+id="adminPassword"
+type="password"
+placeholder="Password">
+
+<button
+class="purple"
+onclick="adminLoginUser()">
+
+Admin Login
+
+</button>
+
+<button
+class="gray"
+onclick="showPage('home')">
+
+मागे जा
+
+</button>
+
+<div
+id="adminMessage"
+class="message hidden">
+</div>
+
+</div>
+
+
+<!-- ================= ADMIN DASHBOARD ================= -->
+
+<div id="adminDashboard" class="hidden">
+
+<div class="card">
+
+<h2>Admin Dashboard</h2>
+
+<p>
+कर्मचारी व्यवस्थापन
+</p>
+
+<button
+class="purple"
+onclick="loadPendingEmployees()">
+
+Pending Employees Refresh करा
+
+</button>
+
+<button
+class="gray"
+onclick="adminLogout()">
+
+Logout
+
+</button>
+
+</div>
+
+
+<!-- PENDING EMPLOYEES -->
+
+<div class="card">
+
+<h2>Pending Employees</h2>
+
+<div id="pendingEmployees">
+Loading...
+</div>
+
+</div>
+
+
+<!-- GPS LOCATION -->
+
+<div class="card">
+
+<h2>📍 कार्यस्थळ GPS</h2>
+
+<p>
+Admin च्या सध्याच्या GPS स्थानाची नोंद करा.
+कर्मचारी याच ठिकाणाच्या ठरावीक अंतरात असल्यास
+Check-In करू शकेल.
+</p>
+
+<input
+id="locationName"
+type="text"
+value="प्राथमिक आरोग्य केंद्र गुहा"
+placeholder="कार्यस्थळाचे नाव">
+
+<input
+id="allowedRadius"
+type="number"
+value="100"
+min="10"
+max="1000"
+placeholder="Radius मीटरमध्ये">
+
+<button
+class="purple"
+onclick="saveWorkplaceLocation()">
+
+📍 माझे सध्याचे स्थान नोंदवा
+
+</button>
+
+<div
+id="locationMessage"
+class="message">
+
+GPS स्थान अद्याप नोंदवलेले नाही.
+
+</div>
+
+</div>
+
+
+<!-- ================= ALL EMPLOYEES ================= -->
+
+<div class="card">
+
+<h2>👥 सर्व कर्मचारी</h2>
+
+<input
+id="employeeSearch"
+type="text"
+placeholder="कर्मचारी नाव / मोबाईल / Email शोधा..."
+oninput="filterEmployees()">
+
+<button
+class="purple"
+onclick="loadAllEmployees()">
+
+🔄 कर्मचारी यादी Refresh करा
+
+</button>
+
+<div id="allEmployees">
+
+Loading...
+
+</div>
+
+</div>
+
+
+<!-- ================= REPORT ================= -->
+
+<div class="card">
+
+<h2>📊 Attendance Report</h2>
+
+<input
+id="reportDate"
+type="date">
+
+<button
+class="purple"
+onclick="loadAdminReport()">
+
+Report पाहा
+
+</button>
+
+<div
+id="adminReport"
+class="message">
+
+तारीख निवडा आणि Report पाहा.
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="footer">
+
+© 2026 Employee Attendance System
+
+</div>
+
+
+<script>
+
+
+/* =====================================
+SUPABASE
+===================================== */
+
+const SUPABASE_URL =
+"https://ndlnpxedaqbdjrtlrkpz.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_A-ME8uqfZdnZ51zf6S77Fg_8hQrZEG4";
+
+const supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+
+/* =====================================
+GLOBAL VARIABLES
+===================================== */
+
+let currentEmployee = null;
+
+let pendingCheckIn = null;
+
+let selfieStream = null;
+
+let allEmployeesData = [];
+
+
+/* =====================================
+PAGE NAVIGATION
+===================================== */
+
+function showPage(page) {
+
+const pages = [
+"home",
+"register",
+"employeeLogin",
+"employeeDashboard",
+"adminLogin",
+"adminDashboard"
+];
+
+pages.forEach(function(id) {
+
+const element =
+document.getElementById(id);
+
+if (element) {
+element.classList.add("hidden");
+}
+
+});
+
+const target =
+document.getElementById(page);
+
+if (target) {
+target.classList.remove("hidden");
+}
+
+}
+
+
+/* =====================================
+REGISTRATION
+===================================== */
+
+async function registerEmployee() {
+
+const name =
+document.getElementById("regName")
+.value.trim();
+
+const mobile =
+document.getElementById("regMobile")
+.value.trim();
+
+const email =
+document.getElementById("regEmail")
+.value.trim();
+
+const designation =
+document.getElementById("regDesignation")
+.value.trim();
+
+const password =
+document.getElementById("regPassword")
+.value;
+
+const confirm =
+document.getElementById("regConfirm")
+.value;
+
+const message =
+document.getElementById("registerMessage");
+
+message.classList.remove("hidden");
+
+
+if (
+!name ||
+!mobile ||
+!email ||
+!designation ||
+!password
+) {
+
+message.innerText =
+"कृपया सर्व माहिती भरा.";
+
+return;
+
+}
+
+
+if (password !== confirm) {
+
+message.innerText =
+"दोन्ही Password समान नाहीत.";
+
+return;
+
+}
+
+
+if (password.length < 6) {
+
+message.innerText =
+"Password किमान 6 अक्षरांचा असावा.";
+
+return;
+
+}
+
+
+try {
+
+const { data, error } =
+await supabaseClient.auth.signUp({
+
+email: email,
+password: password
+
+});
+
+if (error) {
+throw error;
+}
+
+if (!data.user) {
+throw new Error("User तयार झाला नाही.");
+}
+
+
+const { error: profileError } =
+await supabaseClient
+.from("employees")
+.insert({
+
+user_id: data.user.id,
+full_name: name,
+mobile: mobile,
+email: email,
+designation: designation,
+status: "pending"
+
+});
+
+
+if (profileError) {
+throw profileError;
+}
+
+
+message.innerText =
+"✅ नोंदणी यशस्वी झाली! Admin approval नंतर Login करा.";
+
+}
+
+catch(error) {
+
+message.innerText =
+"❌ नोंदणी अयशस्वी: " +
+error.message;
+
+}
+
+}
+
+
+/* =====================================
+EMPLOYEE LOGIN
+===================================== */
+
+async function employeeLogin() {
+
+const email =
+document.getElementById("loginEmail")
+.value.trim();
+
+const password =
+document.getElementById("loginPassword")
+.value;
+
+const message =
+document.getElementById("loginMessage");
+
+message.classList.remove("hidden");
+
+
+try {
+
+const { data, error } =
+await supabaseClient.auth
+.signInWithPassword({
+
+email: email,
+password: password
+
+});
+
+if (error) {
+throw error;
+}
+
+
+const {
+data: employee,
+error: employeeError
+} =
+await supabaseClient
+.from("employees")
+.select(
+"id,full_name,status,designation,email,mobile"
+)
+.eq(
+"user_id",
+data.user.id
+)
+.single();
+
+
+if (employeeError) {
+throw employeeError;
+}
+
+
+if (employee.status !== "approved") {
+
+await supabaseClient.auth.signOut();
+
+message.innerText =
+"⏳ तुमचे खाते अजून Admin ने मंजूर केलेले नाही.";
+
+return;
+
+}
+
+
+currentEmployee = employee;
+
+openEmployeeDashboard();
+
+}
+
+catch(error) {
+
+message.innerText =
+"❌ Login अयशस्वी: " +
+error.message;
+
+}
+
+}
+
+
+/* =====================================
+EMPLOYEE DASHBOARD
+===================================== */
+
+async function openEmployeeDashboard() {
+
+showPage("employeeDashboard");
+
+document.getElementById(
+"employeeName"
+).innerText =
+"नमस्कार, " +
+currentEmployee.full_name;
+
+document.getElementById(
+"employeeDesignation"
+).innerText =
+"पद: " +
+currentEmployee.designation;
+
+await loadTodayAttendance();
+
+await loadAttendanceHistory();
+
+await loadWorkHistory();
+
+}
+
+
+/* =====================================
+TODAY ATTENDANCE
+===================================== */
+
+async function loadTodayAttendance() {
+
+const today =
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+const {
+data,
+error
+} =
+await supabaseClient
+.from("attendance")
+.select("*")
+.eq(
+"employee_id",
+currentEmployee.id
+)
+.eq(
+"attendance_date",
+today
+)
+.maybeSingle();
+
+
+const status =
+document.getElementById(
+"attendanceStatus"
+);
+
+const checkInButton =
+document.getElementById(
+"checkInButton"
+);
+
+const checkOutButton =
+document.getElementById(
+"checkOutButton"
+);
+
+
+if (error) {
+
+status.innerText =
+"❌ माहिती मिळाली नाही.";
+
+return;
+
+}
+
+
+if (!data) {
+
+status.innerText =
+"आजची उपस्थिती नोंदवलेली नाही.";
+
+checkInButton.disabled = false;
+checkOutButton.disabled = true;
+
+return;
+
+}
+
+
+let text =
+"Check-In: " +
+new Date(data.check_in)
+.toLocaleTimeString();
+
+
+if (data.check_out) {
+
+text +=
+"\nCheck-Out: " +
+new Date(data.check_out)
+.toLocaleTimeString();
+
+checkInButton.disabled = true;
+checkOutButton.disabled = true;
+
+}
+
+else {
+
+checkInButton.disabled = true;
+checkOutButton.disabled = false;
+
+}
+
+status.innerText = text;
+
+}
+
+
+/* =====================================
+DISTANCE CALCULATION
+===================================== */
+
+function distanceInMeters(
+lat1,
+lon1,
+lat2,
+lon2
+) {
+
+const R = 6371000;
+
+const dLat =
+(lat2 - lat1) *
+Math.PI / 180;
+
+const dLon =
+(lon2 - lon1) *
+Math.PI / 180;
+
+const a =
+Math.sin(dLat / 2) *
+Math.sin(dLat / 2) +
+
+Math.cos(
+lat1 * Math.PI / 180
+) *
+
+Math.cos(
+lat2 * Math.PI / 180
+) *
+
+Math.sin(dLon / 2) *
+Math.sin(dLon / 2);
+
+const c =
+2 *
+Math.atan2(
+Math.sqrt(a),
+Math.sqrt(1 - a)
+);
+
+return R * c;
+
+}
+
+
+/* =====================================
+CHECK IN
+===================================== */
+
+async function checkIn() {
+
+if (!navigator.geolocation) {
+
+alert(
+"❌ या फोनमध्ये GPS उपलब्ध नाही."
+);
+
+return;
+
+}
+
+
+alert(
+"📍 GPS स्थान तपासत आहे.\nकृपया थोडा वेळ थांबा."
+);
+
+
+navigator.geolocation.getCurrentPosition(
+
+async function(position) {
+
+const userLat =
+position.coords.latitude;
+
+const userLng =
+position.coords.longitude;
+
+const accuracy =
+position.coords.accuracy;
+
+
+try {
+
+/* GET WORKPLACE */
+
+const {
+data: location,
+error: locationError
+} =
+await supabaseClient
+.from("attendance_location")
+.select(
+"latitude,longitude,allowed_radius_meters,location_name"
+)
+.eq(
+"location_key",
+"main"
+)
+.single();
+
+
+if (locationError) {
+throw locationError;
+}
+
+
+/* GPS ACCURACY */
+
+if (accuracy > 100) {
+
+alert(
+"❌ GPS Accuracy कमी आहे.\n\n" +
+"सध्याची Accuracy: " +
+Math.round(accuracy) +
+" मीटर\n\n" +
+"कृपया मोकळ्या जागेत जाऊन पुन्हा प्रयत्न करा."
+);
+
+return;
+
+}
+
+
+/* DISTANCE */
+
+const distance =
+distanceInMeters(
+userLat,
+userLng,
+Number(location.latitude),
+Number(location.longitude)
+);
+
+
+/* RADIUS */
+
+if (
+distance >
+Number(location.allowed_radius_meters)
+) {
+
+alert(
+"❌ Check-In नाकारला.\n\n" +
+"कार्यस्थळ: " +
+location.location_name +
+"\n\n" +
+"तुमचे अंतर: " +
+Math.round(distance) +
+" मीटर\n" +
+"परवानगीचे अंतर: " +
+location.allowed_radius_meters +
+" मीटर"
+);
+
+return;
+
+}
+
+
+/* TODAY */
+
+const today =
+new Date()
+.toISOString()
+.split("T")[0];
+
+
+/* EXISTING */
+
+const {
+data: existing,
+error: existingError
+} =
+await supabaseClient
+.from("attendance")
+.select("id")
+.eq(
+"employee_id",
+currentEmployee.id
+)
+.eq(
+"attendance_date",
+today
+)
+.maybeSingle();
+
+
+if (existingError) {
+throw existingError;
+}
+
+
+if (existing) {
+
+alert(
+"आजची उपस्थिती आधीच नोंदवली आहे."
+);
+
+return;
+
+}
+
+
+/* SAVE PENDING DATA */
+
+pendingCheckIn = {
+
+latitude: userLat,
+longitude: userLng,
+accuracy: accuracy,
+distance: distance,
+locationName: location.location_name
+
+};
+
+
+/* SHOW SELFIE */
+
+const selfieSection =
+document.getElementById(
+"selfieSection"
+);
+
+selfieSection.style.display =
+"block";
+
+
+const selfieLocation =
+document.getElementById(
+"selfieLocation"
+);
+
+selfieLocation.innerText =
+"📍 GPS तपासणी यशस्वी!\n\n" +
+"कार्यस्थळ: " +
+location.location_name +
+"\n" +
+"अंतर: " +
+Math.round(distance) +
+" मीटर\n" +
+"Accuracy: " +
+Math.round(accuracy) +
+" मीटर\n\n" +
+"📸 आता Selfie काढा.";
+
+
+/* START CAMERA */
+
+await startCamera();
+
+
+alert(
+"📸 Selfie काढा.\n\n" +
+"Selfie Confirm केल्याशिवाय Check-In होणार नाही."
+);
+
+}
+
+catch(error) {
+
+alert(
+"❌ Check-In अयशस्वी:\n" +
+error.message
+);
+
+}
+
+},
+
+function(error) {
+
+if (error.code === 1) {
+
+alert(
+"❌ Location Permission नाकारली आहे.\n\n" +
+"Browser मध्ये Location → Allow करा."
+);
+
+}
+
+else if (error.code === 2) {
+
+alert(
+"❌ GPS location मिळू शकले नाही."
+);
+
+}
+
+else if (error.code === 3) {
+
+alert(
+"❌ GPS मिळवण्यासाठी वेळ संपला.\n\n" +
+"पुन्हा प्रयत्न करा."
+);
+
+}
+
+else {
+
+alert(
+"❌ GPS Error: " +
+error.message
+);
+
+}
+
+},
+
+{
+
+enableHighAccuracy: true,
+timeout: 20000,
+maximumAge: 0
+
+}
+
+);
+
+}
+
+
+/* =====================================
+START CAMERA
+===================================== */
+
+async function startCamera() {
+
+if (
+!navigator.mediaDevices ||
+!navigator.mediaDevices.getUserMedia
+) {
+
+throw new Error(
+"या Browser मध्ये Camera उपलब्ध नाही."
+);
+
+}
+
+
+const video =
+document.getElementById(
+"selfieVideo"
+);
+
+
+if (selfieStream) {
+
+selfieStream
+.getTracks()
+.forEach(
+track => track.stop()
+);
+
+}
+
+
+selfieStream =
+await navigator.mediaDevices
+.getUserMedia({
+
+video: {
+facingMode: "user"
+},
+
+audio: false
+
+});
+
+
+video.srcObject =
+selfieStream;
+
+await video.play();
+
+}
+
+
+/* =====================================
+CAPTURE SELFIE
+===================================== */
+
+function captureSelfie() {
+
+const video =
+document.getElementById(
+"selfieVideo"
+);
+
+const canvas =
+document.getElementById(
+"selfieCanvas"
+);
+
+if (
+!video.videoWidth ||
+!video.videoHeight
+) {
+
+alert(
+"❌ Camera अजून तयार नाही. पुन्हा प्रयत्न करा."
+);
+
+return;
+
+}
+
+
+canvas.width =
+video.videoWidth;
+
+canvas.height =
+video.videoHeight;
+
+
+const context =
+canvas.getContext("2d");
+
+
+context.drawImage(
+video,
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+
+const imageData =
+canvas.toDataURL(
+"image/jpeg",
+0.85
+);
+
+
+document.getElementById(
+"selfiePreview"
+).innerHTML =
+
+"<p><strong>Selfie Preview:</strong></p>" +
+
+"<img src='" +
+imageData +
+"'>";
+
+
+document.getElementById(
+"confirmSelfieButton"
+).style.display =
+"block";
+
+
+document.getElementById(
+"retakeSelfieButton"
+).style.display =
+"block";
+
+
+/* STOP CAMERA */
+
+if (selfieStream) {
+
+selfieStream
+.getTracks()
+.forEach(
+track => track.stop()
+);
+
+}
+
+}
+
+
+/* =====================================
+RETAKE SELFIE
+===================================== */
+
+async function retakeSelfie() {
+
+document.getElementById(
+"selfiePreview"
+).innerHTML = "";
+
+document.getElementById(
+"confirmSelfieButton"
+).style.display =
+"none";
+
+document.getElementById(
+"retakeSelfieButton"
+).style.display =
+"none";
+
+try {
+
+await startCamera();
+
+}
+
+catch(error) {
+
+alert(
+"❌ Camera सुरू करता आली नाही:\n" +
+error.message
+);
+
+}
+
+}
+
+
+/* =====================================
+CONFIRM SELFIE + CHECK IN
+===================================== */
+
+async function confirmSelfieAndCheckIn() {
+
+if (!pendingCheckIn) {
+
+alert(
+"❌ GPS माहिती उपलब्ध नाही. पुन्हा Check-In करा."
+);
+
+return;
+
+}
+
+
+const canvas =
+document.getElementById(
+"selfieCanvas"
+);
+
+
+if (!canvas.width) {
+
+alert(
+"❌ आधी Selfie काढा."
+);
+
+return;
+
+}
+
+
+const confirmButton =
+document.getElementById(
+"confirmSelfieButton"
+);
+
+confirmButton.disabled = true;
+
+confirmButton.innerText =
+"⏳ Check-In होत आहे...";
+
+
+try {
+
+/* =================================
+CREATE S
